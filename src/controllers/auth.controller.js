@@ -1,68 +1,135 @@
-const authService = require('../services/authService');
-const jwt = require('jsonwebtoken');
-const logger = require('../utils/logger');
+const authService = require("../services/authService");
 
-const loginController = async (req, res) => {
-  const { email, password } = req.body;
+const login = async (req, res) => {
   try {
-    const info = await authService.loginUser(email, password);
-    const decoded = jwt.verify(info.token, process.env.JWT_SECRET);
-    const sessionData = { id: decoded.id, email: decoded.email, typeAbonnement: decoded.typeAbonnement };
-    logger.info('Calling setSession with token:', info.token, 'and data:', sessionData);
-    res.status(200).json({ info });
+    const { email, password } = req.body;
+    const result = await authService.login(email, password);
+
+    res.json({
+      success: true,
+      data: result,
+    });
   } catch (error) {
-    logger.error('Erreur lors du login:', error.message);
-    res.status(400).json({ message: error.message });
+    console.error("Erreur login:", error);
+    
+    if (error.message === "Email et mot de passe requis" || 
+        error.message === "Identifiants invalides") {
+      return res.status(401).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur lors de la connexion",
+    });
   }
 };
 
-const registerController = async (req, res) => {
-  console.log('y : ', req.body)
-  const { email, password, firstname, lastname } = req.body.user;
+const register = async (req, res) => {
   try {
-    const info = await authService.registerUser(email, password, firstname, lastname);
-    const decoded = jwt.verify(info.token, process.env.JWT_SECRET);
-    const sessionData = { id: decoded.id, email: decoded.email, typeAbonnement: decoded.typeAbonnement };
-    logger.info('Calling setSession with token:', info.token, 'and data:', sessionData);
-    res.status(201).json({ info });
+    const { email, password, firstname, lastname } = req.body.user;
+    console.log('test : ', req.body)
+    const result = await authService.register(email, password, firstname, lastname);
+
+    res.status(201).json({
+      success: true,
+      data: result,
+      message: "Compte créé avec succès ! Un email de bienvenue vous a été envoyé.",
+    });
   } catch (error) {
-    logger.error('Erreur lors de l’enregistrement:', error.message);
-    res.status(400).json({ message: error.message });
+    console.error("Erreur register:", error);
+
+    if (error.response && error.response.status === 409) {
+      return res.status(409).json({
+        success: false,
+        message: "Un compte avec cet email existe déjà",
+      });
+    }
+
+    if (error.message === "Tous les champs sont requis") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur lors de la création du compte",
+    });
   }
 };
 
-const meController = async (req, res) => {
+const me = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    const user = await authService.getUserFromToken(token);
-    console.log('tests : ', user);
-    res.status(200).json(user);
+    // Récupération et validation du token
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "Token manquant - En-tête Authorization requis",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Token manquant - Format Bearer token requis",
+      });
+    }
+
+    // Log pour debugging
+    console.log("Token reçu:", token.substring(0, 20) + "...");
+    
+    const user = await authService.getCurrentUser(token);
+
+    res.json({
+      success: true,
+      data: user,
+    });
   } catch (error) {
-    logger.error('Erreur lors de la récupération du profil:', error.message);
-    res.status(401).json({ message: 'Unauthorized' });
+    console.error("Erreur me:", error);
+
+    if (error.name === "TokenExpiredError" || error.message === "Token expiré") {
+      return res.status(401).json({
+        success: false,
+        message: "Token expiré",
+      });
+    }
+
+    if (error.message === "Token manquant" || 
+        error.message === "Utilisateur non trouvé" ||
+        error.message === "Token invalide" ||
+        error.message === "Token malformé" ||
+        error.message === "Token invalide ou malformé") {
+      return res.status(401).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(401).json({
+      success: false,
+      message: "Token invalide",
+    });
   }
 };
 
-
-const logoutController = async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(400).json({ message: 'Token manquant.' });
-  }
-
-  try {
-
-    res.status(200).json({ message: 'Déconnexion réussie.' });
-  } catch (error) {
-    logger.error('Erreur lors de la déconnexion:', error.message);
-    res.status(500).json({ message: 'Erreur interne lors de la déconnexion.' });
-  }
+const logout = async (req, res) => {
+  res.json({
+    success: true,
+    message: "Déconnexion réussie",
+  });
 };
 
 module.exports = {
-  loginController,
-  logoutController,
-  registerController,
-  meController
+  login,
+  register,
+  me,
+  logout,
 };

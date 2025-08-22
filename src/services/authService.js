@@ -106,14 +106,16 @@ class AuthService {
   }
 
   async getCurrentUser(token) {
-    if (!token) {
-      throw new Error("Token manquant");
-    }
-
-    // Validation du format du token
-    if (typeof token !== 'string' || token.trim() === '') {
+    // if (!token) {
+    //   throw new Error("Token manquant");
+    // }
+    if (!token || !token.trim()) {
       throw new Error("Token invalide");
     }
+    // // Validation du format du token
+    // if (typeof token !== 'string' || token.trim() === '') {
+    //   throw new Error("Token invalide");
+    // }
 
     // Vérification du format JWT (3 parties séparées par des points)
     const tokenParts = token.split('.');
@@ -124,7 +126,7 @@ class AuthService {
     try {
       // Vérifier et décoder le token
       const decoded = jwt.verify(token, JWT_SECRET);
-      
+
       // Vérifier que le token contient les informations nécessaires
       if (!decoded.id) {
         throw new Error("Token invalide - ID manquant");
@@ -144,7 +146,7 @@ class AuthService {
       // Log pour debugging
       console.error("Erreur lors de la vérification du token:", error.message);
       console.error("Token reçu:", token);
-      
+
       if (error.name === 'JsonWebTokenError') {
         throw new Error("Token invalide ou malformé");
       } else if (error.name === 'TokenExpiredError') {

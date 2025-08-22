@@ -1,16 +1,15 @@
 const request = require('supertest');
 const express = require('express');
-const authRoutes = require('../../routes/auth.route');
+const authRoutes = require('../../src/routes/auth.route');
 
-// Mocks
-jest.mock('../../controllers/auth.controller', () => ({
+jest.mock('../../src/controllers/auth.controller', () => ({
   login: jest.fn((req, res) => res.json({ success: true, message: 'Login success' })),
   register: jest.fn((req, res) => res.json({ success: true, message: 'Register success' })),
   logout: jest.fn((req, res) => res.json({ success: true, message: 'Logout success' })),
   me: jest.fn((req, res) => res.json({ success: true, data: { id: '123', email: 'test@test.com' } }))
 }));
 
-jest.mock('../../middlewares/authMiddleware', () => (req, res, next) => {
+jest.mock('../../src/middlewares/authMiddleware', () => (req, res, next) => {
   req.user = { id: '123', email: 'test@test.com' };
   next();
 });

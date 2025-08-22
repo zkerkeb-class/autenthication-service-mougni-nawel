@@ -1,13 +1,9 @@
-const authMiddleware = require('../../middlewares/authMiddleware');
+const authMiddleware = require('../../src/middlewares/authMiddleware');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
-// Mocks
 jest.mock('jsonwebtoken');
 jest.mock('axios');
-
-// process.env.JWT_SECRET = 'secret';
-// process.env.BDD_SERVICE_URL = 'http://localhost:3001';
 
 describe('Auth Middleware', () => {
   let req, res, next;
@@ -23,9 +19,8 @@ describe('Auth Middleware', () => {
     next = jest.fn();
     jest.clearAllMocks();
 
-    // Mock environment variables - utiliser les mêmes valeurs que dans setup.js
     process.env.JWT_SECRET = 'secret';
-    process.env.BDD_SERVICE_URL = 'http://localhost:8000';
+    process.env.BDD_SERVICE_URL = 'http://bdd:8000';
   });
 
   afterEach(() => {
@@ -59,7 +54,6 @@ describe('Auth Middleware', () => {
 
     it('should return 401 if invalid token format', async () => {
       req.headers.authorization = 'InvalidFormat token123';
-      // Mock jwt.verify to throw an error for invalid format
       jwt.verify.mockImplementation(() => {
         const error = new Error('invalid token');
         error.name = 'JsonWebTokenError';

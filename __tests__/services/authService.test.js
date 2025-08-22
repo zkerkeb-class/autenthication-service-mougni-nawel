@@ -1,9 +1,8 @@
-const AuthService = require('../../services/authService');
+const AuthService = require('../../src/services/authService');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 
-// Mocks
 jest.mock('jsonwebtoken');
 jest.mock('bcryptjs');
 jest.mock('axios');
@@ -11,10 +10,8 @@ jest.mock('axios');
 describe('AuthService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Utiliser les mêmes valeurs que dans setup.js
-    // process.env.JWT_SECRET = 'secret';
-    process.env.BDD_SERVICE_URL = 'http://localhost:8000';
-    process.env.NOTIFICATION_SERVICE_URL = 'http://localhost:8016';
+    process.env.BDD_SERVICE_URL = 'http://bdd:8000';
+    process.env.NOTIFICATION_SERVICE_URL = 'http://notification:8016';
     console.error = jest.fn();
   });
 
@@ -51,7 +48,7 @@ describe('AuthService', () => {
           email: 'test@test.com',
           typeAbonnement: 'free'
         },
-        'secret', // Utilisé la même valeur que dans setup.js
+        'secret',
         { expiresIn: '24h' }
       );
       expect(result.token).toBe('token123');
@@ -118,7 +115,7 @@ describe('AuthService', () => {
       axios.post.mockResolvedValueOnce({
         data: { success: true, data: mockUser }
       });
-      axios.post.mockResolvedValueOnce({}); // notification service
+      axios.post.mockResolvedValueOnce({});
       jwt.sign.mockReturnValue('token123');
 
       const result = await AuthService.register('test@test.com', 'password', 'John', 'Doe');
@@ -196,7 +193,6 @@ describe('AuthService', () => {
         data: { success: true, data: mockUser }
       });
 
-      // Utiliser un token avec format JWT valide (3 parties séparées par des points)
       const result = await AuthService.getCurrentUser('valid.jwt.token');
 
       expect(jwt.verify).toHaveBeenCalledWith('valid.jwt.token', 'secret');
@@ -207,7 +203,6 @@ describe('AuthService', () => {
       });
     });
 
-    // Modifier le test de token manquant
     it('should throw error if token missing', async () => {
       await expect(AuthService.getCurrentUser()).rejects.toThrow('Token invalide');
       await expect(AuthService.getCurrentUser('')).rejects.toThrow('Token invalide');

@@ -6,7 +6,6 @@ require('dotenv').config({
   path: path.resolve(__dirname, '../.env.dev') 
 });
 
-// Supprimer les logs pendant les tests
 global.console = {
   ...console,
   log: jest.fn(),
@@ -25,7 +24,6 @@ if (!process.env.NOTIFICATION_SERVICE_URL) process.env.NOTIFICATION_SERVICE_URL 
 // Timeout plus long pour les tests
 jest.setTimeout(10000);
 
-// Test simple pour que Jest ne se plaigne pas
 describe('Setup', () => {
   it('should configure test environment', () => {
     expect(process.env.NODE_ENV).toBeDefined();

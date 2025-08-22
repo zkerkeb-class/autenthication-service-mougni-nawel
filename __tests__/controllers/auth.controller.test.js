@@ -1,8 +1,7 @@
-const { login, register, me, logout } = require('../../controllers/auth.controller');
-const authService = require('../../services/authService');
+const { login, register, me, logout } = require('../../src/controllers/auth.controller');
+const authService = require('../../src/services/authService');
 
-// Mock authService
-jest.mock('../../services/authService');
+jest.mock('../../src/services/authService');
 
 describe('Auth Controller', () => {
   let req, res;
@@ -17,7 +16,6 @@ describe('Auth Controller', () => {
       json: jest.fn().mockReturnThis()
     };
     jest.clearAllMocks();
-    // Mock console.error to avoid noise in tests
     console.error = jest.fn();
   });
 

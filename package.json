@@ -36,6 +36,7 @@
     "prom-client": "^15.1.3"
   },
   "devDependencies": {
+    "dotenv-cli": "^10.0.0",
     "jest": "^30.0.5",
     "supertest": "^7.1.4"
   }

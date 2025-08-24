@@ -40,6 +40,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Créer .env.dev pour le deploy
+        run: |
+          touch .env.dev
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.dev
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.dev
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.dev
+          echo "GOOGLE_OAUTH_URL=${{ secrets.GOOGLE_OAUTH_URL }}" >> .env.dev
+          echo "GOOGLE_ACCESS_TOKEN_URL=${{ secrets.GOOGLE_ACCESS_TOKEN_URL }}" >> .env.dev
+          echo "GOOGLE_TOKEN_INFO_URL=${{ secrets.GOOGLE_TOKEN_INFO_URL }}" >> .env.dev
+          echo "GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}" >> .env.dev
+          echo "URL=${{ secrets.URL }}" >> .env.dev
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env.dev
+          echo "BDD_SERVICE_URL=${{ secrets.BDD_SERVICE_URL }}" >> .env.dev
+          echo "NOTIFICATION_SERVICE_URL=${{ secrets.NOTIFICATION_SERVICE_URL }}" >> .env.dev
+          echo "PORT=${{ secrets.PORT }}" >> .env.dev
+
       - name: Set lowercase Docker user
         run: echo "DOCKER_USER=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 

@@ -30,7 +30,6 @@ const login = async (req, res) => {
 const register = async (req, res) => {
   try {
     const { email, password, firstname, lastname } = req.body.user;
-    console.log('test : ', req.body)
     const result = await authService.register(email, password, firstname, lastname);
 
     res.status(201).json({
@@ -64,7 +63,6 @@ const register = async (req, res) => {
 
 const me = async (req, res) => {
   try {
-    // Récupération et validation du token
     const authHeader = req.headers.authorization;
     
     if (!authHeader) {
@@ -83,8 +81,6 @@ const me = async (req, res) => {
       });
     }
 
-    // Log pour debugging
-    console.log("Token reçu:", token.substring(0, 20) + "...");
     
     const user = await authService.getCurrentUser(token);
 

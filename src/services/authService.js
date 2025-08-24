@@ -98,7 +98,6 @@ class AuthService {
 
     // Retourner sans le mot de passe
     const { password: _, ...userWithoutPassword } = user;
-    console.log('Test token : ', token);
     return {
       token,
       user: userWithoutPassword,
@@ -106,16 +105,9 @@ class AuthService {
   }
 
   async getCurrentUser(token) {
-    // if (!token) {
-    //   throw new Error("Token manquant");
-    // }
     if (!token || !token.trim()) {
       throw new Error("Token invalide");
     }
-    // // Validation du format du token
-    // if (typeof token !== 'string' || token.trim() === '') {
-    //   throw new Error("Token invalide");
-    // }
 
     // Vérification du format JWT (3 parties séparées par des points)
     const tokenParts = token.split('.');

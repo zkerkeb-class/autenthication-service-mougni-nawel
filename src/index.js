@@ -12,36 +12,27 @@ const logger = require("./utils/logger")
 const app = express()
 const PORT = process.env.PORT
 
-// Middlewares de sécurité
 app.use(helmet())
 
-// Set up CORS options
 const corsOptions = {
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }
 
-// Enable CORS
 app.use(cors(corsOptions))
 
-// Middlewares de parsing
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true }))
 
-// 🔧 INITIALISATION DES MÉTRIQUES (OBLIGATOIRE)
 initializeMetrics()
 
-// 📊 MIDDLEWARE MÉTRIQUES (avant les autres middlewares)
 app.use(metricsMiddleware)
 
-// 🛣️ ROUTES MÉTRIQUES
 app.use(metricsRouter)
 
-// Routes
 app.use("/api", routes)
 
-// Health check
 app.get("/health", (req, res) => {
   res.json({
     success: true,
@@ -50,7 +41,6 @@ app.get("/health", (req, res) => {
   })
 })
 
-// Timeout middleware
 app.use(
   timeout.handler({
     timeout: 10000,
@@ -61,7 +51,6 @@ app.use(
   }),
 )
 
-// Gestion d'erreur globale avec métriques
 app.use((err, req, res, next) => {
   const { recordError } = require("./utils/metrics")
   recordError("unhandled_error", err)
@@ -70,12 +59,10 @@ app.use((err, req, res, next) => {
 })
 
 
-// Démarrage du serveur
 app.listen(PORT, () => {
   logger.info(`🚀 Auth Service démarré sur le port ${PORT}`)
 })
 
-// Graceful shutdown
 process.on("SIGINT", async () => {
   try {
     logger.info("Auth Service fermé proprement")

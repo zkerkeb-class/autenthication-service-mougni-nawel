@@ -18,7 +18,6 @@ const authMiddleware = async (req, res, next) => {
     // Vérifier le token JWT
     const decoded = jwt.verify(token, JWT_SECRET)
 
-    console.log('OOO : ', decoded);
     // Récupérer l'utilisateur depuis la BDD
     const userResponse = await axios.get(`${BDD_SERVICE_URL}/api/user/${decoded.id}`, {
       timeout: 5000,
